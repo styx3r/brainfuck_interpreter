@@ -62,6 +62,8 @@ impl Interpreter {
     }
 
     pub fn load_file(path: &str) -> io::Result<()> {
+        env_logger::init();
+
         let interpreter = &mut Self {
             state: State {
                 program_counter: 0,

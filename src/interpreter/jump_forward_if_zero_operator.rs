@@ -7,6 +7,5 @@ pub struct JumpForwardIfZeroOperator;
 
 impl Operator for JumpForwardIfZeroOperator {
     fn evaluate(&self, state: &mut State) {
-        println!("HALLO");
     }
 }

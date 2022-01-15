@@ -7,6 +7,5 @@ pub struct InputCellOperator;
 
 impl Operator for InputCellOperator {
     fn evaluate(&self, state: &mut State) {
-        println!("HALLO");
     }
 }
