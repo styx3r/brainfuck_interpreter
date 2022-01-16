@@ -67,7 +67,7 @@ impl Interpreter {
         let interpreter = &mut Self {
             state: State {
                 program_counter: 0,
-                cells: Vec::new(),
+                cells: vec![0],
                 input: String::new(),
                 current_input_index: 0,
             }
