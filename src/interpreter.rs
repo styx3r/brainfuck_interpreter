@@ -36,41 +36,40 @@ pub struct Interpreter {
 //------------------------------------------------------------------------------
 
 impl Interpreter {
-    fn read(&mut self, path: &str) -> io::Result<()> {
+    fn read(&mut self, path: &str) -> io::Result<String> {
         let mut file = File::open(path)?;
-        
+
         // read the whole file
         file.read_to_string(&mut self.state.input)?;
 
-        for element in self.state.input.clone().chars() {
-            let operator: Box<dyn Operator> = match element {
-                '>' => Box::new(IncrementProgramCounterOperator),
-                '<' => Box::new(DecrementProgramCounterOperator),
-                '+' => Box::new(IncrementCellOperator),
-                '-' => Box::new(DecrementCellOperator),
-                '.' => Box::new(OutputCellOperator),
-                ',' => Box::new(InputCellOperator),
-                '[' => Box::new(JumpForwardIfZeroOperator),
-                ']' => Box::new(JumpBackwardIfNonZeroOperator),
+        loop {
+            let index = self.state.get_current_input_index();
+            if (index as usize) == self.state.input.len() {
+                break;
+            }
+
+            let operator: Box<dyn Operator> = match self.state.input.as_bytes()[index as usize] {
+                b'>' => Box::new(IncrementProgramCounterOperator),
+                b'<' => Box::new(DecrementProgramCounterOperator),
+                b'+' => Box::new(IncrementCellOperator),
+                b'-' => Box::new(DecrementCellOperator),
+                b'.' => Box::new(OutputCellOperator),
+                b',' => Box::new(InputCellOperator),
+                b'[' => Box::new(JumpForwardIfZeroOperator),
+                b']' => Box::new(JumpBackwardIfNonZeroOperator),
                 _ => Box::new(NopOperator),
             };
-            
-            operator.evaluate(&mut self.state);            
+            operator.evaluate(&mut self.state);
+
+            self.state.increment_current_input_index();
         }
-        
-        Ok(())
+
+        Ok(self.state.get_output())
     }
 
-    pub fn load_file(path: &str) -> io::Result<()> {
-        env_logger::init();
-
+    pub fn load_file(path: &str) -> io::Result<String> {
         let interpreter = &mut Self {
-            state: State {
-                program_counter: 0,
-                cells: vec![0],
-                input: String::new(),
-                current_input_index: 0,
-            }
+            state: State::new()
         };
 
         interpreter.read(path)
